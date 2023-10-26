@@ -17,10 +17,17 @@ import android.widget.TextView;
 import android.content.Context;
 import android.content.Intent;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 
 public class MainActivity extends AppCompatActivity {
     private EditText editTextMessage, editTextMessageCrypte;
     private int shiftKey = 0; //Clé de décalage à 0 - Test
+    public String nomFichier="monCryptage.txt";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,11 +68,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
-        if(itemId==R.id.menu_open){
+        if (itemId == R.id.menu_open) {
             Toast.makeText(this, "Ouverture de fichier", Toast.LENGTH_SHORT).show();
-        }else if(itemId==R.id.menu_save){
+            String content = ouvrirFichier(nomFichier);
+                editTextMessage.setText(content);
+        } else if (itemId == R.id.menu_save) {
+            String contenu = editTextMessage.getText().toString();
 
-            Toast.makeText(this, "Option de sauvegarde", Toast.LENGTH_SHORT).show();
+            Log.i("editTextMessage.getText().toString();","editTextMessage.getText().toString()"+contenu);
+            sauvegarderFichier(nomFichier, contenu);
         }
         else if(itemId==R.id.menu_key){
             Toast.makeText(this, "clee de Cryptage", Toast.LENGTH_SHORT).show();
@@ -79,6 +90,41 @@ public class MainActivity extends AppCompatActivity {
         }
             return super.onOptionsItemSelected(item);
         }
+
+    // Méthode pour ouvrir un fichier
+    private String ouvrirFichier(String nomFichier) {
+        File path = getApplicationContext().getFilesDir();
+        File readFrom = new File(path, nomFichier);
+        byte[] content = new byte[(int)readFrom.length()];
+        try {
+            FileInputStream stream = new FileInputStream(readFrom);
+            stream.read(content);
+            return new String(content);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return e.toString();
+        }
+    }
+
+        //Methode pour sauvegarder le fichier
+        private void sauvegarderFichier(String nomFichier, String contenu) {
+            File path = getApplicationContext().getFilesDir();
+            File file = new File(path, nomFichier);
+            // Supprimer le fichier s'il existe
+            if (file.exists()) {
+                file.delete();
+            }
+            try {
+                FileOutputStream writer = new FileOutputStream(file);
+                writer.write(contenu.getBytes());
+                writer.close();
+                Toast.makeText(this, "Sauvegarde effectuée dans " + nomFichier, Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Log.e("Erreur", "mon Erreur:" + e);
+                throw new RuntimeException(e);
+            }
+        }
+
 
     // Méthode pour crypter le message
     private String encryptMessage(String message, int shiftKey) {
