@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             return super.onOptionsItemSelected(item);
         }
 
+
     // Méthode pour ouvrir un fichier
     private String ouvrirFichier(String nomFichier) {
         File path = getApplicationContext().getFilesDir();
